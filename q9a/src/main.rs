@@ -10,39 +10,34 @@ fn read_input() -> Vec<String> {
 
 fn solve() -> i64 {
 
-    let mut blocks = read_input()[0].as_bytes().iter().enumerate().map(|(pos, c)| (pos as i64, (c - b'0') as i32)).collect::<Vec<(i64, i32)>>();
+    let mut blocks = read_input()[0].as_bytes().iter().map(|c| (c - b'0') as i32).collect::<Vec<i32>>();
 
     let mut checksum: i64 = 0;
     let mut curblock: i64 = 0;
     let mut lastidx = blocks.len() - 1;
 
     for idx in 0..blocks.len() {
-        let (pos, mut count) = blocks[idx];
+        let mut count = blocks[idx] as i64;
 
-        assert!(idx == pos as usize);
+        if idx & 0x01 == 0{
+            let id = (idx / 2) as i64;
 
-        if pos & 0x01 == 0{
-            let id = pos / 2;
-            while count > 0 {
-                checksum += id * curblock;
-
-                count -= 1;
-                curblock += 1;
-            }
+            checksum += id * (count + 1) * (curblock + curblock + count) / 2;
+            curblock += count;
         } else {
             while count > 0 {
-                while blocks[lastidx].1 > 0 && count > 0 {
-                    let id = blocks[lastidx].0 / 2;
+                while blocks[lastidx] > 0 && count > 0 {
+                    let id = (lastidx / 2) as i64;
 
                     checksum += id * curblock;
                     count -= 1;
                     curblock += 1;
-                    blocks[lastidx].1 -= 1;
+                    blocks[lastidx] -= 1;
                 }
 
-                if blocks[lastidx].1 == 0 {
+                if blocks[lastidx] == 0 {
                     lastidx -= 1;
-                    blocks[lastidx].1 = 0;
+                    blocks[lastidx] = 0;
                     lastidx -= 1;
                 }
             }
